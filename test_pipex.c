@@ -3,32 +3,32 @@
 /*                                                        :::      ::::::::   */
 /*   test_pipex.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yurivieiradossantos <yurivieiradossanto    +#+  +:+       +#+        */
+/*   By: yvieira- <yvieira-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/12 14:35:20 by yvieira-          #+#    #+#             */
-/*   Updated: 2025/01/12 23:11:29 by yurivieirad      ###   ########.fr       */
+/*   Updated: 2025/01/13 19:11:42 by yvieira-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
-void	is_error(int i)
+void is_error(int i)
 {
-	if (i == 0)
-		perror("\033[31mError: opening input file");
-	if (i == 1)
-		perror("\033[31mError: Duplicating fd[1] or infile");
-	if (i == 2)
-		perror("\033[31mError: opening output file");
-	if (i == 3)
-		perror("\033[31mError: Duplicating fd[0] or outfile");
-	if (i == 4)
-		perror("\033[31mError: Command not found");
-	if (i == 5)
-		perror("\033[31mError: Execution failed");
-	if (i == 6)
-		perror("\033[31mError: right prototype: ./pipex file1 cmd1 cmd2 file2");
-	exit (EXIT_FAILURE);
+    if (i == 0)
+        perror("Error: opening input file");
+    else if (i == 1)
+        perror("Error: duplicating fd or infile");
+    else if (i == 2)
+        perror("Error: opening output file");
+    else if (i == 3)
+        perror("Error: duplicating fd or outfile");
+    else if (i == 4)
+        write(STDERR_FILENO, "Error: Command not found\n", 25);
+    else if (i == 5)
+        perror("Error: execution failed");
+    else if (i == 6)
+        write(STDERR_FILENO, "Error: wrong prototype: ./pipex file1 cmd1 cmd2 file2\n", 53);
+    exit(EXIT_FAILURE);
 }
 
 void free_array(char **arr)
@@ -63,7 +63,7 @@ char **split_cmd(char *argv)
 	if (!cmd || !cmd[0])
 	{
 		free_array(cmd);
-		return (NULL);
+		is_error(4);
 	}
 	return (cmd);
 }
@@ -78,7 +78,9 @@ char *get_command_path(char *cmd, char **all_paths)
 		temp = malloc(ft_strlen(all_paths[i]) + ft_strlen(cmd) + 2);
 		if (!temp)
 			return NULL;
-		temp = ft_strjoin(ft_strjoin(all_paths[i], "/"), cmd);
+		char *prefix = ft_strjoin(all_paths[i], "/");
+		temp = ft_strjoin(prefix, cmd);
+		free(prefix);
 
 		if (access(temp, X_OK) == 0)
 			return temp;
@@ -114,6 +116,8 @@ int pipex(char **argv, char **env)
 	cmd1_args = split_cmd(argv[2]);
 	cmd2_args = split_cmd(argv[3]);
 
+	cmd1_path = get_command_path(cmd1_args[0], all_paths);
+	cmd2_path = get_command_path(cmd2_args[0], all_paths);
 	if (!cmd1_args || !cmd2_args)
 	{
 		write(STDERR_FILENO, "Error: Command parsing failed.\n", 31);
@@ -123,18 +127,16 @@ int pipex(char **argv, char **env)
 		return 1;
 	}
 
-	cmd1_path = get_command_path(cmd1_args[0], all_paths);
-	cmd2_path = get_command_path(cmd2_args[0], all_paths);
 
 	if (!cmd1_path || !cmd2_path)
 	{
-		write(STDERR_FILENO, "Error: Command not found.\n", 26);
 		free_array(all_paths);
 		free_array(cmd1_args);
 		free_array(cmd2_args);
 		free(cmd1_path);
 		free(cmd2_path);
-		return 1;
+        write(STDERR_FILENO, "Error: Command not found.\n", 26);
+        exit(127);
 	}
 
 	int pid1 = fork();
@@ -152,12 +154,19 @@ int pipex(char **argv, char **env)
 		if (infile == -1)
 			is_error(0);
 		if (dup2(fd[1], STDOUT_FILENO) == -1 || dup2(infile, STDIN_FILENO) == -1)
+		{
+			close(fd[0]);
+			close(fd[1]);
+			close(infile);
 			is_error(1);
+		}
 		close(fd[0]);
 		close(fd[1]);
-		execve(cmd1_path, cmd1_args, env);
-		write(STDERR_FILENO, "Error: Execution failed.\n", 25);
-		exit(EXIT_FAILURE);
+		if(execve(cmd1_path, cmd1_args, env) == -1)
+		{
+			write(STDERR_FILENO, "Error: Execution failed.\n", 25);
+			exit(126);
+		}
 	}
 
 	int pid2 = fork();
@@ -171,40 +180,42 @@ int pipex(char **argv, char **env)
 	{
 		int	outfile;
 
-		outfile = open(argv[4], O_RDONLY | O_WRONLY | O_CREAT | O_TRUNC, 0644);
+		outfile = open(argv[4], O_WRONLY | O_CREAT | O_TRUNC, 0644);
 		if (outfile == -1)
 			is_error(2);
 		if (dup2(fd[0], STDIN_FILENO) == -1 || dup2(outfile, STDOUT_FILENO) == -1)
+		{
+			close(fd[0]);
+			close(fd[1]);
+			close(outfile);
 			is_error(3);
+		}
 		close(fd[0]);
 		close(fd[1]);
-		execve(cmd2_path, cmd2_args, env);
-		write(STDERR_FILENO, "Error: Execution failed.\n", 25);
-		exit(EXIT_FAILURE);
+		if(execve(cmd2_path, cmd2_args, env) == -1)
+		{
+			perror("Error: Execution failed");
+			exit(126);
+		}
 	}
 
 	close(fd[0]);
 	close(fd[1]);
-	waitpid(pid1, NULL, 0);
-	waitpid(pid2, NULL, 0);
+	
+    int status1, status2;
+    waitpid(pid1, &status1, 0);
+    waitpid(pid2, &status2, 0);
 
-	free_array(all_paths);
-	free_array(cmd1_args);
-	free_array(cmd2_args);
-	free(cmd1_path);
-	free(cmd2_path);
+    if (WIFEXITED(status2))
+        return WEXITSTATUS(status2);
 
-	return 0;
+    return 1;
 }
 
 int main(int argc, char **argv, char **env)
 {
 	if (argc != 5)
-	{
-		write(STDERR_FILENO, "Error: Incorrect number of arguments.\n", 39);
-		write(STDERR_FILENO, "Usage: ./pipex infile cmd1 cmd2 outfile\n", 40);
-		return 1;
-	}
+		is_error(6);
 
 	char **all_paths = get_path(env);
 	if (!all_paths)

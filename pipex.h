@@ -3,12 +3,13 @@
 /*                                                        :::      ::::::::   */
 /*   pipex.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yurivieiradossantos <yurivieiradossanto    +#+  +:+       +#+        */
+/*   By: yvieira- <yvieira-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/01/12 12:43:37 by yvieira-          #+#    #+#             */
-/*   Updated: 2025/01/12 23:07:15 by yurivieirad      ###   ########.fr       */
+/*   Created: 2025/01/13 17:48:39 by yvieira-          #+#    #+#             */
+/*   Updated: 2025/01/13 17:48:40 by yvieira-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
 
 #include <unistd.h>
 #include <fcntl.h>
