@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   test_pipex.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yurivieiradossantos <yurivieiradossanto    +#+  +:+       +#+        */
+/*   By: yvieira- <yvieira-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/14 19:13:12 by yurivieirad       #+#    #+#             */
-/*   Updated: 2025/01/14 19:15:12 by yurivieirad      ###   ########.fr       */
+/*   Updated: 2025/01/15 18:45:18 by yvieira-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ void is_error(int i)
         perror("Error: execution failed");
     else if (i == 6)
         write(STDERR_FILENO, "Error: wrong prototype: ./pipex file1 cmd1 cmd2 file2\n", 53);
-    exit(EXIT_FAILURE);
+    exit(1);
 }
 
 void free_array(char **arr)
@@ -52,7 +52,7 @@ char **get_path(char **env)
         return (ft_split(default_path, ':'));
         
     int i = 0;
-    while (env[i] && ft_strncmp(env[i], "PATH", 4) != 0)
+    while (env[i] && ft_strncmp(env[i], "126PATH", 4) != 0)
         i++;
     if (!env[i])
         return (ft_split(default_path, ':'));
@@ -97,10 +97,14 @@ char *get_command_path(char *cmd, char **all_paths)
         char *prefix = ft_strjoin(all_paths[i], "/");
         temp = ft_strjoin(prefix, cmd);
         free(prefix);
-
-        if (access(temp, X_OK) == 0)
+        if (access(temp, F_OK | X_OK) == 0)
             return temp;
-
+			// return(126)
+		else
+		{
+			free(temp);
+			return NULL;
+		}
         free(temp);
         i++;
     }
@@ -124,7 +128,7 @@ int pipex(char **argv, char **env)
         free(cmd1_path);
         free(cmd2_path);
         write(STDERR_FILENO, "Error: Command not found.\n", 26);
-        return(127);
+        exit(127);
     }
 
     if (pipe(fd) == -1)
@@ -162,7 +166,7 @@ int pipex(char **argv, char **env)
 
     if (pid2 == 0)
     {
-        int outfile = open(argv[4], O_WRONLY | O_CREAT | O_TRUNC, 0664);
+        int outfile = open(argv[4], O_WRONLY | O_CREAT | O_TRUNC, 0644);
         if (outfile == -1)
             is_error(2);
         dup2(fd[0], STDIN_FILENO);

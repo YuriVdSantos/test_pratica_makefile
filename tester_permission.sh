@@ -9,7 +9,7 @@ echo -e "test: 1"
 
 echo -e "\033[0;31m"
 echo -e "valgrind"
-echo -e "\nTEST: 1\n--------------------------------------------------------------------------------\n" >> valgrind-out.txt
+echo -e "\ntext.txt: 1\n--------------------------------------------------------------------------------\n" >> valgrind-out.txt
 valgrind --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes --log-fd=9 9>>valgrind-out.txt ./pipex /osquery.flags cat 'grep CC' outfile
 
 echo -e "\033[0;93m"
