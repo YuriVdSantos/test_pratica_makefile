@@ -5,8 +5,8 @@ LIBFTDIR = libft
 
 SRC = test_pipex.c
 OBJ = $(SRC:.c=.o)
-CC = cc
-CFLAGS = -Wall -Wextra -Werror -I$(INCDIR) -I$(LIBFTDIR)
+CC = cc 
+CFLAGS = -g -Wall -Wextra -Werror -I$(INCDIR) -I$(LIBFTDIR)
 
 # Biblioteca libft
 LIBFT = $(LIBFTDIR)/libft.a

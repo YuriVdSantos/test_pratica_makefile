@@ -6,7 +6,7 @@
 /*   By: yvieira- <yvieira-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/14 19:13:12 by yurivieirad       #+#    #+#             */
-/*   Updated: 2025/01/15 18:45:18 by yvieira-         ###   ########.fr       */
+/*   Updated: 2025/01/15 20:06:55 by yvieira-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,7 +97,7 @@ char *get_command_path(char *cmd, char **all_paths)
         char *prefix = ft_strjoin(all_paths[i], "/");
         temp = ft_strjoin(prefix, cmd);
         free(prefix);
-        if (access(temp, F_OK | X_OK) == 0)
+        if (access(temp, F_OK && X_OK) == 0)
             return temp;
 			// return(126)
 		else
@@ -213,6 +213,9 @@ int main(int argc, char **argv, char **env)
         write(STDERR_FILENO, "Error: wrong prototype: ./pipex file1 cmd1 cmd2 file2\n", 53);
         return 1;
     }
+	int outfile = open(argv[4], O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	if (outfile == -1)
+		is_error(2);
 
     return pipex(argv, env);
 }
