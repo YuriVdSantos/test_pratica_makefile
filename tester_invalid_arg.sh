@@ -18,8 +18,8 @@ echo -e "< Makefile /srca/ | grep CC > outfile"
 echo -e "\033[0;35m"exit code - $?
 
 echo -en "\033[0;93m"
-echo -e "./pipex Makefile /srca/ 'grep CC' outfile"
-./pipex Makefile /srca/ 'grep CC' outfile
+echo -e './pipex Makefile /srca/ "grep CC" outfile'
+./pipex Makefile /srca/ "grep 'CC'" outfile
 echo -e "\033[0;35m"exit code - $?
 sleep 0.1
 
