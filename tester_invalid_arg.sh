@@ -129,7 +129,7 @@ echo -e "\033[0;35m"exit code - $?
 
 echo -en "\033[0;93m"
 echo -e "./pipex Makefile 'grep CC' srca/ outfile"
-./pipex Makefile 'grep CC' srca/ outfile
+./pipex Makefile "grep 'CC'" srca/ outfile
 echo -e "\033[0;35m"exit code - $?
 sleep 0.1
 

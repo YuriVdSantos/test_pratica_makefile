@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   test_pipex.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yurivieiradossantos <yurivieiradossanto    +#+  +:+       +#+        */
+/*   By: yvieira- <yvieira-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/14 19:13:12 by yurivieirad       #+#    #+#             */
-/*   Updated: 2025/01/16 22:26:30 by yurivieirad      ###   ########.fr       */
+/*   Updated: 2025/01/17 19:09:00 by yvieira-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ char **get_path(char **env)
         return (ft_split(default_path, ':'));
         
     int i = 0;
-    while (env[i] && ft_strncmp(env[i], "126PATH", 4) != 0)
+    while (env[i] && ft_strncmp(env[i], "PATH", 4) != 0)
         i++;
     if (!env[i])
         return (ft_split(default_path, ':'));
@@ -79,6 +79,7 @@ char **split_cmd(char *argv)
     }
     
     cmd = ft_split(argv, ' ');
+
     if (!cmd || !cmd[0])
     {
         free_array(cmd);
@@ -103,7 +104,7 @@ char *get_command_path(char *cmd, char **all_paths)
 		else
 		{
 			free(temp);
-			exit(127);
+			exit(EXIT_FAILURE);
 		}
         free(temp);
         i++;
@@ -119,7 +120,6 @@ int pipex(char **argv, char **env)
     char **cmd2_args = split_cmd(argv[3]);
     char *cmd1_path = get_command_path(cmd1_args[0], all_paths);
     char *cmd2_path = get_command_path(cmd2_args[0], all_paths);
-
     if (!cmd1_path || !cmd2_path)
     {
         free_array(all_paths);
