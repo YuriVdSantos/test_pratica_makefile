@@ -6,22 +6,28 @@
 /*   By: yvieira- <yvieira-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/13 17:48:39 by yvieira-          #+#    #+#             */
-/*   Updated: 2025/01/13 17:48:40 by yvieira-         ###   ########.fr       */
+/*   Updated: 2025/01/20 17:56:36 by yvieira-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#ifndef PIPEX_H
+# define PIPEX_H
 
-#include <unistd.h>
-#include <fcntl.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <sys/wait.h>
+# include <unistd.h>
+# include <stdlib.h>
+# include <sys/wait.h>
+# include <fcntl.h>
+# include <stdio.h>
 # include "libft/libft.h" 
 
-char **split_first_cmd(char *argv);
-char **split_second_cmd(char *argv);
-int pipex(char **argv, char **env);
-char **get_path(char **env);
+void	free_array(char **cmd);
+char	*get_path(char *cmd, char **env);
+void	invalid_path(char **cmd);
+void	is_error(int i);
+char	*build_path(char *dir, char *cmd);
+int		check_empty(const char *cmd);
+void	child_fork(char **argv, char **env, int *fd);
+void	parent_fork(char **argv, char **env, int *fd);
+
+
+#endif
